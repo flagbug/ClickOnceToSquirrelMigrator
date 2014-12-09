@@ -2,6 +2,8 @@
 
 This library is a helper for the migration from ClickOnce to [Squirrel.Windows](https://github.com/Squirrel/Squirrel.Windows)
 
+The ClickOnce uninstall code is taken from [Wunder.ClickOnceUninstaller](https://github.com/6wunderkinder/Wunder.ClickOnceUninstaller)
+
 # The Plan
 
 The migration should be super-simple, requiring only one method call in the ClickOnce version of the application and one method call in the Squirrel version of the application.
