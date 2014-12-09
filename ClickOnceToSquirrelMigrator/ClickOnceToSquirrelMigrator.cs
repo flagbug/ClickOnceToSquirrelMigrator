@@ -18,6 +18,17 @@ namespace ClickOnceToSquirrelMigrator
         private readonly IUpdateManager updateManager;
         private UninstallInfo clickOnceInfo;
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="ClickOnceToSquirrelMigrator" /> class.
+        /// </summary>
+        /// <param name="updateManager">The Squirrel <see cref="IUpdateManager" /></param>
+        /// <param name="clickOnceAppName">
+        /// The name of the ClickOnce version of your app. This is used to find the application and
+        /// uninstall it.
+        /// </param>
+        /// <param name="fileSystem">
+        /// An optional filesystem for unit testing. For best results leave this <c>null</c>.
+        /// </param>
         public ClickOnceToSquirrelMigrator(IUpdateManager updateManager, string clickOnceAppName, IFileSystem fileSystem = null)
         {
             if (updateManager == null)
@@ -31,6 +42,12 @@ namespace ClickOnceToSquirrelMigrator
             this.fileSystem = fileSystem ?? new FileSystem();
         }
 
+        /// <summary>
+        /// Installs the Squirrel version of your app and removes the ClickOnce shortcut so the
+        /// users doesn't have a duplicate shortcut.
+        /// 
+        /// Call this method in a new version of your ClickOnce app.
+        /// </summary>
         public async Task InstallSquirrel()
         {
             await this.InstallSquirrelDeployment();
@@ -38,6 +55,15 @@ namespace ClickOnceToSquirrelMigrator
             await this.RemoveClickOnceShortcut();
         }
 
+        /// <summary>
+        /// Uninstalls the ClickOnce version of your application.
+        /// 
+        /// Call this method from the Squirrel version of your application.
+        /// </summary>
+        /// <remarks>
+        /// After this method completes, you may want to set a flag somewhere, so you don't call
+        /// this method the next time your Squirrel app starts.
+        /// </remarks>
         public async Task UninstallClickOnce()
         {
             var uninstallInfo = await this.GetClickOnceInfo();
