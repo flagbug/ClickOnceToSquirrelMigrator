@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Microsoft.Win32;
 
-namespace Wunder.ClickOnceUninstaller
+namespace ClickOnceToSquirrelMigrator
 {
-    public class RemoveUninstallEntry : IUninstallStep
+    internal class RemoveUninstallEntry : IUninstallStep
     {
         private readonly UninstallInfo _uninstallInfo;
         private RegistryKey _uninstall;
@@ -12,6 +12,23 @@ namespace Wunder.ClickOnceUninstaller
         public RemoveUninstallEntry(UninstallInfo uninstallInfo)
         {
             _uninstallInfo = uninstallInfo;
+        }
+
+        public void Dispose()
+        {
+            if (_uninstall != null)
+            {
+                _uninstall.Close();
+                _uninstall = null;
+            }
+        }
+
+        public void Execute()
+        {
+            if (_uninstall == null)
+                throw new InvalidOperationException("Call Prepare() first.");
+
+            _uninstall.DeleteSubKey(_uninstallInfo.Key);
         }
 
         public void Prepare(List<string> componentsToRemove)
@@ -27,23 +44,6 @@ namespace Wunder.ClickOnceUninstaller
             Console.WriteLine("Remove uninstall info from " + _uninstall.OpenSubKey(_uninstallInfo.Key).Name);
 
             Console.WriteLine();
-        }
-
-        public void Execute()
-        {
-            if (_uninstall == null)
-                throw new InvalidOperationException("Call Prepare() first.");
-
-            _uninstall.DeleteSubKey(_uninstallInfo.Key);
-        }
-
-        public void Dispose()
-        {
-            if (_uninstall != null)
-            {
-                _uninstall.Close();
-                _uninstall = null;
-            }
         }
     }
 }

@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
 
-namespace Wunder.ClickOnceUninstaller
+namespace ClickOnceToSquirrelMigrator
 {
-    public class RemoveRegistryKeys : IUninstallStep
+    internal class RemoveRegistryKeys : IUninstallStep
     {
-        public const string PackageMetadataRegistryPath = @"Software\Classes\Software\Microsoft\Windows\CurrentVersion\Deployment\SideBySide\2.0\PackageMetadata";
         public const string ApplicationsRegistryPath = @"Software\Classes\Software\Microsoft\Windows\CurrentVersion\Deployment\SideBySide\2.0\StateManager\Applications";
         public const string FamiliesRegistryPath = @"Software\Classes\Software\Microsoft\Windows\CurrentVersion\Deployment\SideBySide\2.0\StateManager\Families";
+        public const string PackageMetadataRegistryPath = @"Software\Classes\Software\Microsoft\Windows\CurrentVersion\Deployment\SideBySide\2.0\PackageMetadata";
         public const string VisibilityRegistryPath = @"Software\Classes\Software\Microsoft\Windows\CurrentVersion\Deployment\SideBySide\2.0\Visibility";
 
+        private readonly List<IDisposable> _disposables = new List<IDisposable>();
         private readonly ClickOnceRegistry _registry;
         private readonly UninstallInfo _uninstallInfo;
-        private readonly List<IDisposable> _disposables = new List<IDisposable>();
         private List<RegistryMarker> _keysToRemove;
         private List<RegistryMarker> _valuesToRemove;
 
@@ -22,6 +22,31 @@ namespace Wunder.ClickOnceUninstaller
         {
             _registry = registry;
             _uninstallInfo = uninstallInfo;
+        }
+
+        public void Dispose()
+        {
+            _disposables.ForEach(d => d.Dispose());
+            _disposables.Clear();
+
+            _keysToRemove = null;
+            _valuesToRemove = null;
+        }
+
+        public void Execute()
+        {
+            if (_keysToRemove == null)
+                throw new InvalidOperationException("Call Prepare() first.");
+
+            foreach (var key in _keysToRemove)
+            {
+                key.Parent.DeleteSubKeyTree(key.ItemName);
+            }
+
+            foreach (var value in _valuesToRemove)
+            {
+                value.Parent.DeleteValue(value.ItemName);
+            }
         }
 
         public void Prepare(List<string> componentsToRemove)
@@ -74,19 +99,6 @@ namespace Wunder.ClickOnceUninstaller
             DeleteMatchingSubKeys(VisibilityRegistryPath, token);
         }
 
-        private void DeleteMatchingSubKeys(string registryPath, string token)
-        {
-            var key = Registry.CurrentUser.OpenSubKey(registryPath, true);
-            _disposables.Add(key);
-            foreach (var subKeyName in key.GetSubKeyNames())
-            {
-                if (subKeyName.Contains(token))
-                {
-                    _keysToRemove.Add(new RegistryMarker(key, subKeyName));
-                }
-            }
-        }
-
         public void PrintDebugInformation()
         {
             if (_keysToRemove == null)
@@ -105,29 +117,17 @@ namespace Wunder.ClickOnceUninstaller
             Console.WriteLine();
         }
 
-        public void Execute()
+        private void DeleteMatchingSubKeys(string registryPath, string token)
         {
-            if (_keysToRemove == null)
-                throw new InvalidOperationException("Call Prepare() first.");
-
-            foreach (var key in _keysToRemove)
+            var key = Registry.CurrentUser.OpenSubKey(registryPath, true);
+            _disposables.Add(key);
+            foreach (var subKeyName in key.GetSubKeyNames())
             {
-                key.Parent.DeleteSubKeyTree(key.ItemName);
+                if (subKeyName.Contains(token))
+                {
+                    _keysToRemove.Add(new RegistryMarker(key, subKeyName));
+                }
             }
-
-            foreach (var value in _valuesToRemove)
-            {
-                value.Parent.DeleteValue(value.ItemName);
-            }
-        }
-
-        public void Dispose()
-        {
-            _disposables.ForEach(d => d.Dispose());
-            _disposables.Clear();
-
-            _keysToRemove = null;
-            _valuesToRemove = null;
         }
 
         private class RegistryMarker
@@ -138,9 +138,9 @@ namespace Wunder.ClickOnceUninstaller
                 ItemName = name;
             }
 
-            public RegistryKey Parent { get; private set; }
-
             public string ItemName { get; private set; }
+
+            public RegistryKey Parent { get; private set; }
         }
     }
 }

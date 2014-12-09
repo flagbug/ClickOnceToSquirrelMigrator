@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Wunder.ClickOnceUninstaller
+namespace ClickOnceToSquirrelMigrator
 {
-    public interface IUninstallStep : IDisposable
+    internal interface IUninstallStep : IDisposable
     {
+        void Execute();
+
         void Prepare(List<string> componentsToRemove);
 
         void PrintDebugInformation();
-
-        void Execute();
     }
 }

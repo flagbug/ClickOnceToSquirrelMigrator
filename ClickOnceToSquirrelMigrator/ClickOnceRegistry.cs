@@ -3,18 +3,22 @@ using System.Linq;
 using System.Text;
 using Microsoft.Win32;
 
-namespace Wunder.ClickOnceUninstaller
+namespace ClickOnceToSquirrelMigrator
 {
-    public class ClickOnceRegistry
+    internal class ClickOnceRegistry
     {
         public const string ComponentsRegistryPath = @"Software\Classes\Software\Microsoft\Windows\CurrentVersion\Deployment\SideBySide\2.0\Components";
         public const string MarksRegistryPath = @"Software\Classes\Software\Microsoft\Windows\CurrentVersion\Deployment\SideBySide\2.0\Marks";
-        
+
         public ClickOnceRegistry()
         {
             ReadComponents();
             ReadMarks();
         }
+
+        public List<Component> Components { get; set; }
+
+        public List<Mark> Marks { get; set; }
 
         private void ReadComponents()
         {
@@ -67,28 +71,25 @@ namespace Wunder.ClickOnceUninstaller
                     var implication = markKey.GetValue(implicationName) as byte[];
                     if (implication != null)
                         mark.Implications.Add(new Implication
-                                                  {
-                                                      Key = implicationName,
-                                                      Name = implicationName.Substring(12),
-                                                      Value = Encoding.ASCII.GetString(implication)
-                                                  });
+                        {
+                            Key = implicationName,
+                            Name = implicationName.Substring(12),
+                            Value = Encoding.ASCII.GetString(implication)
+                        });
                 }
-            }
-        }
-
-        public class RegistryKey
-        {
-            public string Key { get; set; }
-
-            public override string ToString()
-            {
-                return Key ?? base.ToString();
             }
         }
 
         public class Component : RegistryKey
         {
             public List<string> Dependencies { get; set; }
+        }
+
+        public class Implication : RegistryKey
+        {
+            public string Name { get; set; }
+
+            public string Value { get; set; }
         }
 
         public class Mark : RegistryKey
@@ -100,15 +101,14 @@ namespace Wunder.ClickOnceUninstaller
             public List<Implication> Implications { get; set; }
         }
 
-        public class Implication : RegistryKey
+        public class RegistryKey
         {
-            public string Name { get; set; }
+            public string Key { get; set; }
 
-            public string Value { get; set; }
+            public override string ToString()
+            {
+                return Key ?? base.ToString();
+            }
         }
-
-        public List<Component> Components { get; set; }
-
-        public List<Mark> Marks { get; set; }
     }
 }

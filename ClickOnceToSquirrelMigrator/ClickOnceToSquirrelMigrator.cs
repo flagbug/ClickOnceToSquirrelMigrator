@@ -4,7 +4,6 @@ using System.IO.Abstractions;
 using System.Threading.Tasks;
 using Splat;
 using Squirrel;
-using Wunder.ClickOnceUninstaller;
 
 namespace ClickOnceToSquirrelMigrator
 {

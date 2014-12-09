@@ -3,17 +3,43 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Wunder.ClickOnceUninstaller
+namespace ClickOnceToSquirrelMigrator
 {
-    public class RemoveStartMenuEntry : IUninstallStep
+    internal class RemoveStartMenuEntry : IUninstallStep
     {
         private readonly UninstallInfo _uninstallInfo;
-        private List<string> _foldersToRemove;
         private List<string> _filesToRemove;
+        private List<string> _foldersToRemove;
 
         public RemoveStartMenuEntry(UninstallInfo uninstallInfo)
         {
             _uninstallInfo = uninstallInfo;
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public void Execute()
+        {
+            if (_foldersToRemove == null)
+                throw new InvalidOperationException("Call Prepare() first.");
+
+            try
+            {
+                foreach (var file in _filesToRemove)
+                {
+                    File.Delete(file);
+                }
+
+                foreach (var folder in _foldersToRemove)
+                {
+                    Directory.Delete(folder, false);
+                }
+            }
+            catch (IOException)
+            {
+            }
         }
 
         public void Prepare(List<string> componentsToRemove)
@@ -61,32 +87,6 @@ namespace Wunder.ClickOnceUninstaller
             }
 
             Console.WriteLine();
-        }
-
-        public void Execute()
-        {
-            if (_foldersToRemove == null)
-                throw new InvalidOperationException("Call Prepare() first.");
-
-            try
-            {
-                foreach (var file in _filesToRemove)
-                {
-                    File.Delete(file);
-                }
-
-                foreach (var folder in _foldersToRemove)
-                {
-                    Directory.Delete(folder, false);
-                }
-            }
-            catch (IOException)
-            {
-            }
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

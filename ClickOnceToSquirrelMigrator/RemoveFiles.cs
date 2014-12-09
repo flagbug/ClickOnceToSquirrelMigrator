@@ -2,20 +2,45 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Wunder.ClickOnceUninstaller
+namespace ClickOnceToSquirrelMigrator
 {
-    public class RemoveFiles : IUninstallStep
+    internal class RemoveFiles : IUninstallStep
     {
-        private string _clickOnceFolder;
         private string _clickOnceDataFolder;
-
-        private List<string> _foldersToRemove;
+        private string _clickOnceFolder;
         private List<string> _filesToRemove;
+        private List<string> _foldersToRemove;
+
+        public void Dispose()
+        {
+        }
+
+        public void Execute()
+        {
+            if (string.IsNullOrEmpty(_clickOnceFolder) || !Directory.Exists(_clickOnceFolder))
+                throw new InvalidOperationException("Call Prepare() first.");
+
+            foreach (var folder in _foldersToRemove)
+            {
+                try
+                {
+                    Directory.Delete(folder, true);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
+            }
+
+            foreach (var file in _filesToRemove)
+            {
+                File.Delete(file);
+            }
+        }
 
         public void Prepare(List<string> componentsToRemove)
         {
             _foldersToRemove = new List<string>();
-            
+
             _clickOnceFolder = FindClickOnceFolder();
             foreach (var directory in Directory.GetDirectories(_clickOnceFolder))
             {
@@ -33,7 +58,7 @@ namespace Wunder.ClickOnceUninstaller
                     _foldersToRemove.Add(directory);
                 }
             }
-            
+
             _filesToRemove = new List<string>();
             foreach (var file in Directory.GetFiles(Path.Combine(_clickOnceFolder, "manifests")))
             {
@@ -65,50 +90,6 @@ namespace Wunder.ClickOnceUninstaller
             Console.WriteLine();
         }
 
-        public void Execute()
-        {
-            if (string.IsNullOrEmpty(_clickOnceFolder) || !Directory.Exists(_clickOnceFolder))
-                throw new InvalidOperationException("Call Prepare() first.");
-
-            foreach (var folder in _foldersToRemove)
-            {
-                try
-                {
-                    Directory.Delete(folder, true);
-                }
-                catch (UnauthorizedAccessException)
-                {
-                }
-            }
-
-            foreach (var file in _filesToRemove)
-            {
-                File.Delete(file);
-            }
-        }
-
-        private string FindClickOnceFolder()
-        {
-            return DescendIntoSubfolders(GetApps20Folder());
-        }
-
-        private string FindClickOnceDataFolder()
-        {
-            return DescendIntoSubfolders(Path.Combine(GetApps20Folder(), "Data"));
-        }
-
-        private static string GetApps20Folder()
-        {
-            return IsWindowsXp()
-                ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"..\Apps\2.0")
-                : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Apps\2.0");
-        }
-
-        private static bool IsWindowsXp()
-        {
-            return Environment.OSVersion.Version.Major == 5;
-        }
-
         private static string DescendIntoSubfolders(string baseFolder)
         {
             if (!Directory.Exists(baseFolder)) throw new ArgumentException("Could not find ClickOnce folder.");
@@ -130,8 +111,26 @@ namespace Wunder.ClickOnceUninstaller
             throw new ArgumentException("Could not find ClickOnce folder");
         }
 
-        public void Dispose()
+        private static string GetApps20Folder()
         {
+            return IsWindowsXp()
+                ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"..\Apps\2.0")
+                : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Apps\2.0");
+        }
+
+        private static bool IsWindowsXp()
+        {
+            return Environment.OSVersion.Version.Major == 5;
+        }
+
+        private string FindClickOnceDataFolder()
+        {
+            return DescendIntoSubfolders(Path.Combine(GetApps20Folder(), "Data"));
+        }
+
+        private string FindClickOnceFolder()
+        {
+            return DescendIntoSubfolders(GetApps20Folder());
         }
     }
 }

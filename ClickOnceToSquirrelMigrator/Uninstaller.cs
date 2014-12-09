@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Wunder.ClickOnceUninstaller
+namespace ClickOnceToSquirrelMigrator
 {
-    public class Uninstaller
+    internal class Uninstaller
     {
         private readonly ClickOnceRegistry _registry;
 
