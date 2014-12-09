@@ -39,7 +39,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClickOnceRegistry.cs" />
+    <Compile Include="IUninstallStep.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RemoveFiles.cs" />
+    <Compile Include="RemoveRegistryKeys.cs" />
+    <Compile Include="RemoveStartMenuEntry.cs" />
+    <Compile Include="RemoveUninstallEntry.cs" />
+    <Compile Include="Uninstaller.cs" />
+    <Compile Include="UninstallInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
