@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Splat;
 
 namespace ClickOnceToSquirrelMigrator
 {
-    internal class RemoveFiles : IUninstallStep
+    internal class RemoveFiles : IUninstallStep, IEnableLogger
     {
         private string _clickOnceDataFolder;
         private string _clickOnceFolder;
@@ -74,20 +75,18 @@ namespace ClickOnceToSquirrelMigrator
             if (string.IsNullOrEmpty(_clickOnceFolder) || !Directory.Exists(_clickOnceFolder))
                 throw new InvalidOperationException("Call Prepare() first.");
 
-            Console.WriteLine("Remove files from " + _clickOnceFolder);
-            Console.WriteLine("Remove files from " + _clickOnceDataFolder);
+            this.Log().Info("Remove files from " + _clickOnceFolder);
+            this.Log().Info("Remove files from " + _clickOnceDataFolder);
 
             foreach (var folder in _foldersToRemove)
             {
-                Console.WriteLine("Delete folder " + folder.Substring(_clickOnceFolder.Length + 1));
+                this.Log().Info("Delete folder " + folder.Substring(_clickOnceFolder.Length + 1));
             }
 
             foreach (var file in _filesToRemove)
             {
-                Console.WriteLine("Delete file " + file.Substring(_clickOnceFolder.Length + 1));
+                this.Log().Info("Delete file " + file.Substring(_clickOnceFolder.Length + 1));
             }
-
-            Console.WriteLine();
         }
 
         private static string DescendIntoSubfolders(string baseFolder)

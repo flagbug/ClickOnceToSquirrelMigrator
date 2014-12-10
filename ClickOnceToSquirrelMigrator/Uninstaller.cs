@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Splat;
 
 namespace ClickOnceToSquirrelMigrator
 {
-    internal class Uninstaller
+    internal class Uninstaller : IEnableLogger
     {
         private readonly ClickOnceRegistry _registry;
 
@@ -22,17 +23,16 @@ namespace ClickOnceToSquirrelMigrator
         {
             var toRemove = FindComponentsToRemove(uninstallInfo.GetPublicKeyToken());
 
-            Console.WriteLine("Components to remove:");
-            toRemove.ForEach(Console.WriteLine);
-            Console.WriteLine();
+            this.Log().Info("Components to remove:");
+            toRemove.ForEach(this.Log().Info);
 
             var steps = new List<IUninstallStep>
-                            {
-                                new RemoveFiles(),
-                                new RemoveStartMenuEntry(uninstallInfo),
-                                new RemoveRegistryKeys(_registry, uninstallInfo),
-                                new RemoveUninstallEntry(uninstallInfo)
-                            };
+            {
+                new RemoveFiles(),
+                new RemoveStartMenuEntry(uninstallInfo),
+                new RemoveRegistryKeys(_registry, uninstallInfo),
+                new RemoveUninstallEntry(uninstallInfo)
+            };
 
             steps.ForEach(s => s.Prepare(toRemove));
             steps.ForEach(s => s.PrintDebugInformation());

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Splat;
 
 namespace ClickOnceToSquirrelMigrator
 {
-    internal class RemoveStartMenuEntry : IUninstallStep
+    internal class RemoveStartMenuEntry : IUninstallStep, IEnableLogger
     {
         private readonly UninstallInfo _uninstallInfo;
         private List<string> _filesToRemove;
@@ -74,19 +75,17 @@ namespace ClickOnceToSquirrelMigrator
                 throw new InvalidOperationException("Call Prepare() first.");
 
             var programsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
-            Console.WriteLine("Remove start menu entries from " + programsFolder);
+            this.Log().Info("Remove start menu entries from " + programsFolder);
 
             foreach (var file in _filesToRemove)
             {
-                Console.WriteLine("Delete file " + file);
+                this.Log().Info("Delete file " + file);
             }
 
             foreach (var folder in _foldersToRemove)
             {
-                Console.WriteLine("Delete folder " + folder);
+                this.Log().Info("Delete folder " + folder);
             }
-
-            Console.WriteLine();
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Win32;
+using Splat;
 
 namespace ClickOnceToSquirrelMigrator
 {
-    internal class RemoveUninstallEntry : IUninstallStep
+    internal class RemoveUninstallEntry : IUninstallStep, IEnableLogger
     {
         private readonly UninstallInfo _uninstallInfo;
         private RegistryKey _uninstall;
@@ -41,9 +42,7 @@ namespace ClickOnceToSquirrelMigrator
             if (_uninstall == null)
                 throw new InvalidOperationException("Call Prepare() first.");
 
-            Console.WriteLine("Remove uninstall info from " + _uninstall.OpenSubKey(_uninstallInfo.Key).Name);
-
-            Console.WriteLine();
+            this.Log().Info("Remove uninstall info from " + _uninstall.OpenSubKey(_uninstallInfo.Key).Name);
         }
     }
 }

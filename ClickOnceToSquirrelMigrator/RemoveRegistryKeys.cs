@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
+using Splat;
 
 namespace ClickOnceToSquirrelMigrator
 {
-    internal class RemoveRegistryKeys : IUninstallStep
+    internal class RemoveRegistryKeys : IUninstallStep, IEnableLogger
     {
         public const string ApplicationsRegistryPath = @"Software\Classes\Software\Microsoft\Windows\CurrentVersion\Deployment\SideBySide\2.0\StateManager\Applications";
         public const string FamiliesRegistryPath = @"Software\Classes\Software\Microsoft\Windows\CurrentVersion\Deployment\SideBySide\2.0\StateManager\Families";
@@ -106,15 +107,13 @@ namespace ClickOnceToSquirrelMigrator
 
             foreach (var key in _keysToRemove)
             {
-                Console.WriteLine("Delete key {0} in {1}", key.Parent, key.ItemName);
+                this.Log().Info("Delete key {0} in {1}", key.Parent, key.ItemName);
             }
 
             foreach (var value in _valuesToRemove)
             {
-                Console.WriteLine("Delete value {0} in {1}", value.Parent, value.ItemName);
+                this.Log().Info("Delete value {0} in {1}", value.Parent, value.ItemName);
             }
-
-            Console.WriteLine();
         }
 
         private void DeleteMatchingSubKeys(string registryPath, string token)
