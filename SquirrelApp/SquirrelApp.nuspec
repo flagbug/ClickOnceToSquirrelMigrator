@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>SquirrelApp</id>
+        <version>1.0.0</version>
+        <title>SquirrelApp</title>
+        <authors>Dennis Daume</authors>
+        <owners>Dennis Daume</owners>
+        <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+        <projectUrl>https://github.com/flagbug/ClickOnceToSquirrelMigrator</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A migration helper from ClickOnce to Squirrel.Windows.</description>
+        <tags></tags>
+    </metadata>
+    <files>
+        <file src="bin\Release\*.dll" target="lib\net45\" />
+        <file src="bin\Release\*.exe" target="lib\net45\" />
+		<file src="bin\Release\*.exe.config" target="lib\net45\" />
+    </files>
+</package>

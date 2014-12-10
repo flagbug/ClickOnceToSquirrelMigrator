@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.IO.Abstractions;
 using System.Threading.Tasks;
 using Splat;
 using Squirrel;
@@ -14,7 +13,6 @@ namespace ClickOnceToSquirrelMigrator
     public class ClickOnceToSquirrelMigrator : IEnableLogger
     {
         private readonly string clickOnceAppName;
-        private readonly IFileSystem fileSystem;
         private readonly IUpdateManager updateManager;
         private UninstallInfo clickOnceInfo;
 
@@ -26,10 +24,7 @@ namespace ClickOnceToSquirrelMigrator
         /// The name of the ClickOnce version of your app. This is used to find the application and
         /// uninstall it.
         /// </param>
-        /// <param name="fileSystem">
-        /// An optional filesystem for unit testing. For best results leave this <c>null</c>.
-        /// </param>
-        public ClickOnceToSquirrelMigrator(IUpdateManager updateManager, string clickOnceAppName, IFileSystem fileSystem = null)
+        public ClickOnceToSquirrelMigrator(IUpdateManager updateManager, string clickOnceAppName)
         {
             if (updateManager == null)
                 throw new ArgumentNullException("updateManager");
@@ -39,7 +34,6 @@ namespace ClickOnceToSquirrelMigrator
 
             this.updateManager = updateManager;
             this.clickOnceAppName = clickOnceAppName;
-            this.fileSystem = fileSystem ?? new FileSystem();
         }
 
         /// <summary>
@@ -118,7 +112,7 @@ namespace ClickOnceToSquirrelMigrator
 
             try
             {
-                await Task.Run(() => this.fileSystem.File.Delete(shortcut));
+                await Task.Run(() => File.Delete(shortcut));
             }
 
             catch (Exception ex)
