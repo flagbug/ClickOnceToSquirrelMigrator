@@ -30,6 +30,10 @@ namespace ClickOnceToSquirrelMigrator.Tests
             return Disposable.Create(() =>
             {
                 UninstallInfo theApp = UninstallInfo.Find(ClickOnceAppName);
+
+                if (theApp == null)
+                    return;
+
                 var uninstaller = new Uninstaller();
                 uninstaller.Uninstall(theApp);
             });
