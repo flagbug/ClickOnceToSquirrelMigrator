@@ -26,20 +26,30 @@ namespace ClickOnceToSquirrelMigrator
             if (_foldersToRemove == null)
                 throw new InvalidOperationException("Call Prepare() first.");
 
-            try
+            foreach (var file in _filesToRemove)
             {
-                foreach (var file in _filesToRemove)
+                try
                 {
                     File.Delete(file);
                 }
 
-                foreach (var folder in _foldersToRemove)
+                catch (IOException ex)
+                {
+                    this.Log().WarnException("Failed to remove shortcut file " + file, ex);
+                }
+            }
+
+            foreach (var folder in _foldersToRemove)
+            {
+                try
                 {
                     Directory.Delete(folder, false);
                 }
-            }
-            catch (IOException)
-            {
+
+                catch (IOException ex)
+                {
+                    this.Log().Warn("Failed to remove folder " + folder, ex);
+                }
             }
         }
 
