@@ -28,7 +28,7 @@ namespace ClickOnceToSquirrelMigrator.Tests
         /// <param name="host">The ClickOnce hosting manager.</param>
         private static void AssertApplicationRequirements(InPlaceHostingManager host)
         {
-            host.AssertApplicationRequirements();
+            host.AssertApplicationRequirements(true);
         }
 
         /// <summary>
