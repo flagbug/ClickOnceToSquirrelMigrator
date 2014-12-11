@@ -48,7 +48,7 @@ namespace ClickOnceToSquirrelMigrator
 
                 catch (IOException ex)
                 {
-                    this.Log().Warn("Failed to remove folder " + folder, ex);
+                    this.Log().WarnException("Failed to remove folder " + folder, ex);
                 }
             }
         }
