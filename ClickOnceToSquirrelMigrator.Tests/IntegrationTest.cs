@@ -16,9 +16,9 @@ namespace ClickOnceToSquirrelMigrator.Tests
             {
                 using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
                 {
-                    var migrator = new ClickOnceToSquirrelMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+                    var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
 
-                    await migrator.InstallSquirrel();
+                    await migrator.Execute();
 
                     Assert.True(File.Exists(Path.Combine(rootDir, IntegrationTestHelper.SquirrelAppName, "packages", "RELEASES")));
                 }
@@ -39,13 +39,28 @@ namespace ClickOnceToSquirrelMigrator.Tests
                 {
                     using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
                     {
-                        var migrator = new ClickOnceToSquirrelMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+                        var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
 
-                        await migrator.InstallSquirrel();
+                        await migrator.Execute();
 
                         Assert.False(File.Exists(clickOnceInfo.GetShortcutPath()));
                     }
                 }
+            }
+        }
+
+        [Fact]
+        public async Task InSquirrelAppMigratorUninstallsClickOnceApp()
+        {
+            using (IntegrationTestHelper.WithClickOnceApp())
+            {
+                var migrator = new InSquirrelAppMigrator(IntegrationTestHelper.ClickOnceAppName);
+
+                await migrator.Execute();
+
+                var installInfo = UninstallInfo.Find(IntegrationTestHelper.ClickOnceAppName);
+
+                Assert.Null(installInfo);
             }
         }
 
