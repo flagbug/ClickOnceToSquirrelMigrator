@@ -64,10 +64,15 @@ namespace ClickOnceToSquirrelMigrator
             var desktopFolder = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
             var desktopShortcut = Path.Combine(desktopFolder, _uninstallInfo.ShortcutFileName + ".appref-ms");
 
+            string roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string taskbarShortcut = Path.Combine(roamingFolder, @"Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar",
+                _uninstallInfo.ShortcutFileName + ".appref-ms");
+
             _filesToRemove = new List<string>();
             if (File.Exists(shortcut)) _filesToRemove.Add(shortcut);
             if (File.Exists(supportShortcut)) _filesToRemove.Add(supportShortcut);
             if (File.Exists(desktopShortcut)) _filesToRemove.Add(desktopShortcut);
+            if (File.Exists(taskbarShortcut)) _filesToRemove.Add(taskbarShortcut);
 
             _foldersToRemove = new List<string>();
             if (Directory.Exists(suiteFolder) && Directory.GetFiles(suiteFolder).All(d => _filesToRemove.Contains(d)))
