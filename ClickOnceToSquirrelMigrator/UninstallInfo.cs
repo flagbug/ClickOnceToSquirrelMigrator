@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using Microsoft.Win32;
 
@@ -58,6 +59,16 @@ namespace ClickOnceToSquirrelMigrator
             var token = UninstallString.Split(',').First(s => s.Trim().StartsWith("PublicKeyToken=")).Substring(16);
             if (token.Length != 16) throw new ArgumentException();
             return token;
+        }
+
+        public string GetShortcutPath()
+        {
+            string programsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
+            string folder = Path.Combine(programsFolder, this.ShortcutFolderName);
+            string suiteFolder = Path.Combine(folder, this.ShortcutSuiteName ?? string.Empty);
+            string shortcut = Path.Combine(suiteFolder, this.ShortcutFileName + ".appref-ms");
+
+            return shortcut;
         }
     }
 }

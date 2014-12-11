@@ -112,10 +112,7 @@ namespace ClickOnceToSquirrelMigrator
                 return;
             }
 
-            string programsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
-            string folder = Path.Combine(programsFolder, info.ShortcutFolderName);
-            string suiteFolder = Path.Combine(folder, info.ShortcutSuiteName ?? string.Empty);
-            string shortcut = Path.Combine(suiteFolder, info.ShortcutFileName + ".appref-ms");
+            string shortcut = info.GetShortcutPath();
 
             this.Log().Info("ClickOnce shortcut is located at {0}", shortcut);
 
