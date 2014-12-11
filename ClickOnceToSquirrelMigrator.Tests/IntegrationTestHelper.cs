@@ -40,7 +40,15 @@ namespace ClickOnceToSquirrelMigrator.Tests
 
             path = tempDir.FullName;
 
-            return Disposable.Create(() => Directory.Delete(tempDir.FullName, true));
+            return Disposable.Create(() =>
+            {
+                try
+                {
+                    Directory.Delete(tempDir.FullName, true);
+                }
+                catch (Exception)
+                { }
+            });
         }
     }
 }
