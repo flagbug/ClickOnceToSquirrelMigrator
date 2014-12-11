@@ -15,9 +15,9 @@ var migrator = new ClickOnceToSquirrelMigrator(updateManager, "ClickOnceAppName"
 // Ship a new ClickOnce update and call this method
 // It silently installs the Squirrel version of your application in the background
 // and removes the ClickOnce shortcut so the user doesn't end up with two shortcuts.
-migrator.InstallSquirrel();
+await migrator.InstallSquirrel();
 
 // In the Squirrel version call this method
 // It uninstalls the ClickOnce version of the application
-migrator.UninstallClickOnce();
+await migrator.UninstallClickOnce();
 ```
