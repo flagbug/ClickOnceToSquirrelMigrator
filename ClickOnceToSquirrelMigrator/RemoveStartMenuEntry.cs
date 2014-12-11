@@ -43,7 +43,7 @@ namespace ClickOnceToSquirrelMigrator
             }
         }
 
-        public void Prepare(List<string> componentsToRemove)
+        public void Prepare(List<string> componentsToRemove = null)
         {
             var programsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
             var folder = Path.Combine(programsFolder, _uninstallInfo.ShortcutFolderName);

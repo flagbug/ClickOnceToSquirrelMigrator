@@ -46,7 +46,7 @@ namespace ClickOnceToSquirrelMigrator
         {
             await this.InstallSquirrelDeployment();
 
-            await this.RemoveClickOnceShortcut();
+            await this.RemoveClickOnceShortcuts();
         }
 
         /// <summary>
@@ -100,9 +100,9 @@ namespace ClickOnceToSquirrelMigrator
             this.Log().Info("Finished the install of the Squirrel version");
         }
 
-        private async Task RemoveClickOnceShortcut()
+        private async Task RemoveClickOnceShortcuts()
         {
-            this.Log().Info("Removing ClickOnce shortcut");
+            this.Log().Info("Removing ClickOnce shortcuts");
 
             UninstallInfo info = await this.GetClickOnceInfo();
 
@@ -112,22 +112,24 @@ namespace ClickOnceToSquirrelMigrator
                 return;
             }
 
-            string shortcut = info.GetShortcutPath();
-
-            this.Log().Info("ClickOnce shortcut is located at {0}", shortcut);
+            var remover = new RemoveStartMenuEntry(info);
 
             try
             {
-                await Task.Run(() => File.Delete(shortcut));
+                await Task.Run(() =>
+                {
+                    remover.Prepare();
+                    remover.Execute();
+                });
             }
 
             catch (Exception ex)
             {
-                this.Log().ErrorException("Failed to remove ClickOnce shortcut", ex);
+                this.Log().ErrorException("Failed to remove ClickOnce shortcuts", ex);
                 return;
             }
 
-            this.Log().Info("Removed ClickOnce shortcut");
+            this.Log().Info("Removed ClickOnce shortcuts");
         }
     }
 }
