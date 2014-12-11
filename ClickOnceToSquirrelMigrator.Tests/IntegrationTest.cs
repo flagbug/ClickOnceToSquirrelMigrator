@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Squirrel;
 using Xunit;
 
 namespace ClickOnceToSquirrelMigrator.Tests
@@ -11,19 +10,17 @@ namespace ClickOnceToSquirrelMigrator.Tests
         [Fact]
         public async Task FirstStepInstallsSquirrelApp()
         {
-            string squirrelUpdatePath = Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName, "SquirrelApp"); // omg
-
             string rootDir;
 
             using (IntegrationTestHelper.WithTempDirectory(out rootDir))
             {
-                using (var updateManager = new UpdateManager(squirrelUpdatePath, "SquirrelApp", FrameworkVersion.Net45, rootDir))
+                using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
                 {
                     var migrator = new ClickOnceToSquirrelMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
 
                     await migrator.InstallSquirrel();
 
-                    Assert.True(File.Exists(Path.Combine(rootDir, "SquirrelApp", "packages", "RELEASES")));
+                    Assert.True(File.Exists(Path.Combine(rootDir, IntegrationTestHelper.SquirrelAppName, "packages", "RELEASES")));
                 }
             }
         }
@@ -31,8 +28,6 @@ namespace ClickOnceToSquirrelMigrator.Tests
         [Fact]
         public async Task FirstStepRemovesClickOnceShortcut()
         {
-            string squirrelUpdatePath = Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName, "SquirrelApp"); // omg
-
             using (IntegrationTestHelper.WithClickOnceApp())
             {
                 var clickOnceInfo = UninstallInfo.Find(IntegrationTestHelper.ClickOnceAppName);
@@ -42,9 +37,9 @@ namespace ClickOnceToSquirrelMigrator.Tests
                 string rootDir;
                 using (IntegrationTestHelper.WithTempDirectory(out rootDir))
                 {
-                    using (var updateManager = new UpdateManager(squirrelUpdatePath, "SquirrelApp", FrameworkVersion.Net45, rootDir))
+                    using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
                     {
-                        var migrator = new ClickOnceToSquirrelMigrator(updateManager, "ClickOnceApp");
+                        var migrator = new ClickOnceToSquirrelMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
 
                         await migrator.InstallSquirrel();
 
@@ -57,9 +52,8 @@ namespace ClickOnceToSquirrelMigrator.Tests
         [Fact]
         public async Task UninstallsClickOnceApp()
         {
-            string clickOnceApp = Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName, "ClickOnceApp/ClickOnceApp.application"); // omg
             var installer = new ClickOnceInstaller();
-            await installer.InstallClickOnceApp(new Uri(clickOnceApp));
+            await installer.InstallClickOnceApp(new Uri(IntegrationTestHelper.ClickOnceTestAppPath));
 
             UninstallInfo theApp = UninstallInfo.Find(IntegrationTestHelper.ClickOnceAppName);
 

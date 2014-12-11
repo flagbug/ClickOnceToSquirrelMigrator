@@ -4,15 +4,22 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Text;
 using Squirrel;
-using Xunit;
 
 namespace ClickOnceToSquirrelMigrator.Tests
 {
     public class IntegrationTestHelper
     {
         public static readonly string ClickOnceAppName = "ClickOnceApp";
+        public static readonly string ClickOnceTestAppPath = Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName, "ClickOnceApp/ClickOnceApp.application"); // omg
+        public static readonly string SquirrelAppName = "SquirrelApp";
+        public static readonly string SquirrelTestAppPath = Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName, "SquirrelApp"); // omg
 
         private static string directoryChars;
+
+        public static UpdateManager GetSquirrelUpdateManager(string rootDir)
+        {
+            return new UpdateManager(IntegrationTestHelper.SquirrelTestAppPath, SquirrelAppName, FrameworkVersion.Net45, rootDir);
+        }
 
         public static IDisposable WithClickOnceApp()
         {
