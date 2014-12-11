@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>ClickOnceToSquirrelMigrator</id>
+        <version>0.1.0</version>
+        <title>ClickOnceToSquirrelMigrator</title>
+        <authors>Dennis Daume</authors>
+        <owners>Dennis Daume</owners>
+        <licenseUrl>https://github.com/flagbug/ClickOnceToSquirrelMigrator/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/flagbug/ClickOnceToSquirrelMigrator</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A migration helper from ClickOnce to Squirrel.Windows.</description>
+        <tags>ClickOnce Squirrel Squirrel.Windows Migration</tags>
+        <dependencies>
+            <dependency id="squirrel.windows" version="0.7.1" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="bin\Release\ClickOnceToSquirrelMigrator.dll" target="lib\net45\ClickOnceToSquirrelMigrator.dll" />
+        <file src="bin\Release\ClickOnceToSquirrelMigrator.xml" target="lib\net45\ClickOnceToSquirrelMigrator.xml" />
+    </files>
+</package>
