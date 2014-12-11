@@ -63,7 +63,10 @@ namespace ClickOnceToSquirrelMigrator
             var uninstallInfo = await this.GetClickOnceInfo();
 
             if (uninstallInfo == null)
+            {
+                this.Log().Info("Couldn't find the ClickOnce deployment, bailing...");
                 return;
+            }
 
             var uninstaller = new Uninstaller();
             await Task.Run(() => uninstaller.Uninstall(uninstallInfo));
@@ -102,6 +105,12 @@ namespace ClickOnceToSquirrelMigrator
             this.Log().Info("Removing ClickOnce shortcut");
 
             UninstallInfo info = await this.GetClickOnceInfo();
+
+            if (info == null)
+            {
+                this.Log().Info("Couldn't find the ClickOnce deployment, bailing...");
+                return;
+            }
 
             string programsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
             string folder = Path.Combine(programsFolder, info.ShortcutFolderName);
