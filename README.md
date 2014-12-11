@@ -8,16 +8,23 @@ The ClickOnce uninstall code is taken from [Wunder.ClickOnceUninstaller](https:/
 
 The migration is super-simple, requiring only one method call in the ClickOnce version of the application and one method call in the Squirrel version of the application.
 
+Create a new ClickOnce version of your application that you ship with the following code:
+
 ```cs
-var updateManager = new UpdateManager("http://update.myapp.com", "MyApp", FrameworkVersion.Net45);
-var migrator = new ClickOnceToSquirrelMigrator(updateManager, "ClickOnceAppName");
-
-// Ship a new ClickOnce update and call this method
-// It silently installs the Squirrel version of your application in the background
-// and removes the ClickOnce shortcut so the user doesn't end up with two shortcuts.
-await migrator.InstallSquirrel();
-
-// In the Squirrel version call this method
-// It uninstalls the ClickOnce version of the application
-await migrator.UninstallClickOnce();
+using (var updateManager = new UpdateManager("http://update.myapp.com", "MyApp", FrameworkVersion.Net45))
+{
+    var migrator = new InClickOnceAppMigrator(updateManager, "ClickOnceAppName");
+    await migrator.Execute();
+}
 ```
+
+This installs the Squirrel version of your application and removes the ClickOnce shortcuts.
+
+In the new Squirrel version of your application, call the following code:
+
+```cs
+var migrator = new InSquirrelAppMigrator("ClickOnceAppName");
+await migrator.Execute();
+```
+
+This uninstalls the rest of the ClickOnce application and leaves only the Squirrel version. Done!
