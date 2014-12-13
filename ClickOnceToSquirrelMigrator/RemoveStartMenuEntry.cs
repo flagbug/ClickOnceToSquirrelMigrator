@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Splat;
+using Squirrel;
 
 namespace ClickOnceToSquirrelMigrator
 {
@@ -67,6 +68,19 @@ namespace ClickOnceToSquirrelMigrator
             string roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string taskbarShortcut = Path.Combine(roamingFolder, @"Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar",
                 _uninstallInfo.ShortcutFileName + ".appref-ms");
+
+            if (File.Exists(taskbarShortcut))
+            {
+                try
+                {
+                    TaskbarHelper.UnpinFromTaskbar(taskbarShortcut);
+                }
+
+                catch (Exception ex)
+                {
+                    this.Log().ErrorException("Failed to unpin shortcut " + taskbarShortcut, ex);
+                }
+            }
 
             _filesToRemove = new List<string>();
             if (File.Exists(shortcut)) _filesToRemove.Add(shortcut);

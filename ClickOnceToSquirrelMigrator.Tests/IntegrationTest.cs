@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Squirrel;
 using Xunit;
 
 namespace ClickOnceToSquirrelMigrator.Tests
@@ -44,6 +45,33 @@ namespace ClickOnceToSquirrelMigrator.Tests
                         await migrator.Execute();
 
                         Assert.False(File.Exists(clickOnceInfo.GetShortcutPath()));
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public async Task FirstStepRemovesPinnedTaskbarIcon()
+        {
+            string roamingFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string taskbarFolder = Path.Combine(roamingFolder, @"Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar");
+
+            using (IntegrationTestHelper.WithClickOnceApp())
+            {
+                var clickOnceInfo = UninstallInfo.Find(IntegrationTestHelper.ClickOnceAppName);
+                string shortcutPath = clickOnceInfo.GetShortcutPath();
+                TaskbarHelper.PinToTaskbar(shortcutPath);
+
+                string rootDir;
+                using (IntegrationTestHelper.WithTempDirectory(out rootDir))
+                {
+                    using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
+                    {
+                        var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+
+                        await migrator.Execute();
+
+                        Assert.False(File.Exists(Path.Combine(taskbarFolder, IntegrationTestHelper.ClickOnceAppName + ".appref-ms")));
                     }
                 }
             }

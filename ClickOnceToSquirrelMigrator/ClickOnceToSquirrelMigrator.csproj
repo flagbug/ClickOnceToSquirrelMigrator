@@ -84,6 +84,7 @@
     <Compile Include="RemoveRegistryKeys.cs" />
     <Compile Include="RemoveStartMenuEntry.cs" />
     <Compile Include="RemoveUninstallEntry.cs" />
+    <Compile Include="TaskbarHelper.cs" />
     <Compile Include="Uninstaller.cs" />
     <Compile Include="UninstallInfo.cs" />
   </ItemGroup>
