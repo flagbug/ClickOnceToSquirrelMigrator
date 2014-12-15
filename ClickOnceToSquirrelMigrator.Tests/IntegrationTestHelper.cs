@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Text;
+using System.Threading.Tasks;
 using Squirrel;
 
 namespace ClickOnceToSquirrelMigrator.Tests
 {
-    public class IntegrationTestHelper
+    public static class IntegrationTestHelper
     {
         public static readonly string ClickOnceAppName = "ClickOnceApp";
         public static readonly string ClickOnceTestAppPath = Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName, "ClickOnceApp/ClickOnceApp.application"); // omg
@@ -15,6 +18,89 @@ namespace ClickOnceToSquirrelMigrator.Tests
         public static readonly string SquirrelTestAppPath = Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName, "SquirrelApp"); // omg
 
         private static string directoryChars;
+
+        public static IDisposable CleanupSquirrel(IUpdateManager updateManager)
+        {
+            return Disposable.Create(() =>
+            {
+                updateManager.FullUninstall().Wait();
+                updateManager.RemoveUninstallerRegistryEntry();
+            });
+        }
+
+        public static async Task DeleteDirectory(string directoryPath)
+        {
+            if (!Directory.Exists(directoryPath))
+            {
+                return;
+            }
+
+            // From http://stackoverflow.com/questions/329355/cannot-delete-directory-with-directory-deletepath-true/329502#329502
+            var files = new string[0];
+            try
+            {
+                files = Directory.GetFiles(directoryPath);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                var message = String.Format("The files inside {0} could not be read", directoryPath);
+            }
+
+            var dirs = new string[0];
+            try
+            {
+                dirs = Directory.GetDirectories(directoryPath);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                var message = String.Format("The directories inside {0} could not be read", directoryPath);
+            }
+
+            var fileOperations = files.ForEachAsync(file =>
+            {
+                try
+                {
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
+                }
+
+                catch (Exception)
+                { }
+            });
+
+            var directoryOperations =
+                dirs.ForEachAsync(async dir => await DeleteDirectory(dir));
+
+            await Task.WhenAll(fileOperations, directoryOperations);
+
+            File.SetAttributes(directoryPath, FileAttributes.Normal);
+
+            try
+            {
+                Directory.Delete(directoryPath, false);
+            }
+            catch (Exception ex)
+            {
+                var message = String.Format("DeleteDirectory: could not delete - {0}", directoryPath);
+            }
+        }
+
+        public static Task ForEachAsync<T>(this IEnumerable<T> source, Action<T> body, int degreeOfParallelism = 4)
+        {
+            return ForEachAsync(source, x => Task.Run(() => body(x)), degreeOfParallelism);
+        }
+
+        public static Task ForEachAsync<T>(this IEnumerable<T> source, Func<T, Task> body, int degreeOfParallelism = 4)
+        {
+            return Task.WhenAll(
+                from partition in Partitioner.Create(source).GetPartitions(degreeOfParallelism)
+                select Task.Run(async () =>
+                {
+                    using (partition)
+                        while (partition.MoveNext())
+                            await body(partition.Current);
+                }));
+        }
 
         public static UpdateManager GetSquirrelUpdateManager(string rootDir)
         {
@@ -36,25 +122,6 @@ namespace ClickOnceToSquirrelMigrator.Tests
 
                 var uninstaller = new Uninstaller();
                 uninstaller.Uninstall(theApp);
-            });
-        }
-
-        public static IDisposable WithSquirrelApp()
-        {
-            string squirrelUpdatePath = Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName, "SquirrelApp"); // omg
-            string rootDir;
-
-            var tempDisp = WithTempDirectory(out rootDir);
-
-            var updateManager = new UpdateManager(squirrelUpdatePath, "SquirrelApp", FrameworkVersion.Net45, rootDir);
-
-            updateManager.FullInstall(true).Wait();
-
-            return Disposable.Create(() =>
-            {
-                updateManager.FullUninstall().Wait();
-                updateManager.Dispose();
-                tempDisp.Dispose();
             });
         }
 
@@ -88,15 +155,7 @@ namespace ClickOnceToSquirrelMigrator.Tests
 
             path = tempDir.FullName;
 
-            return Disposable.Create(() =>
-            {
-                try
-                {
-                    Directory.Delete(tempDir.FullName, true);
-                }
-                catch (Exception)
-                { }
-            });
+            return Disposable.Create(() => Task.Run(async () => await DeleteDirectory(tempDir.FullName)).Wait());
         }
     }
 }

@@ -1,13 +1,38 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Squirrel;
+using Microsoft.Win32;
 using Xunit;
 
 namespace ClickOnceToSquirrelMigrator.Tests
 {
     public class IntegrationTest
     {
+        [Fact]
+        public async Task FirstStepCreatesSquirrelUninstallEntry()
+        {
+            using (IntegrationTestHelper.WithClickOnceApp())
+            {
+                string rootDir;
+                using (IntegrationTestHelper.WithTempDirectory(out rootDir))
+                {
+                    using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
+                    {
+                        using (IntegrationTestHelper.CleanupSquirrel(updateManager))
+                        {
+                            var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+
+                            RegistryKey key = Registry.CurrentUser.OpenSubKey(UninstallInfo.UninstallRegistryPath, true);
+
+                            await migrator.Execute();
+
+                            Assert.NotNull(key.OpenSubKey(IntegrationTestHelper.SquirrelAppName));
+                        }
+                    }
+                }
+            }
+        }
+
         [Fact]
         public async Task FirstStepInstallsSquirrelApp()
         {
@@ -17,11 +42,14 @@ namespace ClickOnceToSquirrelMigrator.Tests
             {
                 using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
                 {
-                    var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+                    using (IntegrationTestHelper.CleanupSquirrel(updateManager))
+                    {
+                        var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
 
-                    await migrator.Execute();
+                        await migrator.Execute();
 
-                    Assert.True(File.Exists(Path.Combine(rootDir, IntegrationTestHelper.SquirrelAppName, "packages", "RELEASES")));
+                        Assert.True(File.Exists(Path.Combine(rootDir, IntegrationTestHelper.SquirrelAppName, "packages", "RELEASES")));
+                    }
                 }
             }
         }
@@ -40,11 +68,14 @@ namespace ClickOnceToSquirrelMigrator.Tests
                 {
                     using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
                     {
-                        var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+                        using (IntegrationTestHelper.CleanupSquirrel(updateManager))
+                        {
+                            var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
 
-                        await migrator.Execute();
+                            await migrator.Execute();
 
-                        Assert.False(File.Exists(clickOnceInfo.GetShortcutPath()));
+                            Assert.False(File.Exists(clickOnceInfo.GetShortcutPath()));
+                        }
                     }
                 }
             }
@@ -67,11 +98,14 @@ namespace ClickOnceToSquirrelMigrator.Tests
                 {
                     using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
                     {
-                        var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+                        using (IntegrationTestHelper.CleanupSquirrel(updateManager))
+                        {
+                            var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
 
-                        await migrator.Execute();
+                            await migrator.Execute();
 
-                        Assert.False(File.Exists(Path.Combine(taskbarFolder, IntegrationTestHelper.ClickOnceAppName + ".appref-ms")));
+                            Assert.False(File.Exists(Path.Combine(taskbarFolder, IntegrationTestHelper.ClickOnceAppName + ".appref-ms")));
+                        }
                     }
                 }
             }

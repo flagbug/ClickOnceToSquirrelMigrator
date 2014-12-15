@@ -16,5 +16,6 @@
         <file src="bin\Release\*.dll" target="lib\net45\" />
         <file src="bin\Release\*.exe" target="lib\net45\" />
 		<file src="bin\Release\*.exe.config" target="lib\net45\" />
+        <file src="Squirrel.exe" target="lib\net45\Squirrel.exe" />
     </files>
 </package>
