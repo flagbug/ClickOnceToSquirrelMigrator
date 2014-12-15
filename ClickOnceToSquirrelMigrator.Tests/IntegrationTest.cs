@@ -18,13 +18,16 @@ namespace ClickOnceToSquirrelMigrator.Tests
                 {
                     using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
                     {
-                        var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+                        using (IntegrationTestHelper.CleanupSquirrel(updateManager))
+                        {
+                            var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
 
-                        RegistryKey key = Registry.CurrentUser.OpenSubKey(UninstallInfo.UninstallRegistryPath, true);
+                            RegistryKey key = Registry.CurrentUser.OpenSubKey(UninstallInfo.UninstallRegistryPath, true);
 
-                        await migrator.Execute();
+                            await migrator.Execute();
 
-                        Assert.NotNull(key.OpenSubKey(IntegrationTestHelper.SquirrelAppName));
+                            Assert.NotNull(key.OpenSubKey(IntegrationTestHelper.SquirrelAppName));
+                        }
                     }
                 }
             }
@@ -39,11 +42,14 @@ namespace ClickOnceToSquirrelMigrator.Tests
             {
                 using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
                 {
-                    var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+                    using (IntegrationTestHelper.CleanupSquirrel(updateManager))
+                    {
+                        var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
 
-                    await migrator.Execute();
+                        await migrator.Execute();
 
-                    Assert.True(File.Exists(Path.Combine(rootDir, IntegrationTestHelper.SquirrelAppName, "packages", "RELEASES")));
+                        Assert.True(File.Exists(Path.Combine(rootDir, IntegrationTestHelper.SquirrelAppName, "packages", "RELEASES")));
+                    }
                 }
             }
         }
@@ -62,11 +68,14 @@ namespace ClickOnceToSquirrelMigrator.Tests
                 {
                     using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
                     {
-                        var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+                        using (IntegrationTestHelper.CleanupSquirrel(updateManager))
+                        {
+                            var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
 
-                        await migrator.Execute();
+                            await migrator.Execute();
 
-                        Assert.False(File.Exists(clickOnceInfo.GetShortcutPath()));
+                            Assert.False(File.Exists(clickOnceInfo.GetShortcutPath()));
+                        }
                     }
                 }
             }
@@ -89,11 +98,14 @@ namespace ClickOnceToSquirrelMigrator.Tests
                 {
                     using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
                     {
-                        var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+                        using (IntegrationTestHelper.CleanupSquirrel(updateManager))
+                        {
+                            var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
 
-                        await migrator.Execute();
+                            await migrator.Execute();
 
-                        Assert.False(File.Exists(Path.Combine(taskbarFolder, IntegrationTestHelper.ClickOnceAppName + ".appref-ms")));
+                            Assert.False(File.Exists(Path.Combine(taskbarFolder, IntegrationTestHelper.ClickOnceAppName + ".appref-ms")));
+                        }
                     }
                 }
             }

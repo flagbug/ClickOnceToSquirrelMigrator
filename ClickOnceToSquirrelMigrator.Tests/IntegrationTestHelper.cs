@@ -16,6 +16,15 @@ namespace ClickOnceToSquirrelMigrator.Tests
 
         private static string directoryChars;
 
+        public static IDisposable CleanupSquirrel(IUpdateManager updateManager)
+        {
+            return Disposable.Create(() =>
+            {
+                updateManager.FullUninstall().Wait();
+                updateManager.RemoveUninstallerRegistryEntry();
+            });
+        }
+
         public static UpdateManager GetSquirrelUpdateManager(string rootDir)
         {
             return new UpdateManager(IntegrationTestHelper.SquirrelTestAppPath, SquirrelAppName, FrameworkVersion.Net45, rootDir);
@@ -38,27 +47,6 @@ namespace ClickOnceToSquirrelMigrator.Tests
                 uninstaller.Uninstall(theApp);
             });
         }
-
-        public static IDisposable WithSquirrelApp()
-        {
-            string squirrelUpdatePath = Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName, "SquirrelApp"); // omg
-            string rootDir;
-
-            var tempDisp = WithTempDirectory(out rootDir);
-
-            var updateManager = new UpdateManager(squirrelUpdatePath, "SquirrelApp", FrameworkVersion.Net45, rootDir);
-
-            updateManager.FullInstall(true).Wait();
-
-            return Disposable.Create(() =>
-            {
-                updateManager.FullUninstall().Wait();
-                updateManager.RemoveUninstallerRegistryEntry();
-                updateManager.Dispose();
-                tempDisp.Dispose();
-            });
-        }
-
         public static IDisposable WithTempDirectory(out string path)
         {
             var di = new DirectoryInfo(Environment.GetEnvironmentVariable("SQUIRREL_TEMP") ?? Environment.GetEnvironmentVariable("TEMP") ?? "");
