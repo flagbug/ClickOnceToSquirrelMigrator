@@ -20,3 +20,8 @@
 *.PDF	 diff=astextplain
 *.rtf	 diff=astextplain
 *.RTF	 diff=astextplain
+
+# Tell git it shouldn't modify ClickOnce binaries, 
+# otherwise we get a hash mismatch
+*.deploy binary
+*.manifest binary
