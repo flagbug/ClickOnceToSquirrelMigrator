@@ -20,6 +20,8 @@ using (var updateManager = new UpdateManager("http://update.myapp.com", "MyApp",
 
 This installs the Squirrel version of your application and removes the ClickOnce shortcuts.
 
+**Important note:** Make sure you include a copy of Squirrel.exe in you .nupkg file. If you don't do this, you won't have an Update.exe in you app folder, and you're gonna have a bad time.
+
 In the new Squirrel version of your application, call the following code:
 
 ```cs
