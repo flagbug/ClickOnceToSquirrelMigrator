@@ -53,6 +53,7 @@ namespace ClickOnceToSquirrelMigrator.Tests
             return Disposable.Create(() =>
             {
                 updateManager.FullUninstall().Wait();
+                updateManager.RemoveUninstallerRegistryEntry();
                 updateManager.Dispose();
                 tempDisp.Dispose();
             });

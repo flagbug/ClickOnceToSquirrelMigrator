@@ -1,13 +1,35 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Squirrel;
+using Microsoft.Win32;
 using Xunit;
 
 namespace ClickOnceToSquirrelMigrator.Tests
 {
     public class IntegrationTest
     {
+        [Fact]
+        public async Task FirstStepCreatesSquirrelUninstallEntry()
+        {
+            using (IntegrationTestHelper.WithClickOnceApp())
+            {
+                string rootDir;
+                using (IntegrationTestHelper.WithTempDirectory(out rootDir))
+                {
+                    using (var updateManager = IntegrationTestHelper.GetSquirrelUpdateManager(rootDir))
+                    {
+                        var migrator = new InClickOnceAppMigrator(updateManager, IntegrationTestHelper.ClickOnceAppName);
+
+                        RegistryKey key = Registry.CurrentUser.OpenSubKey(UninstallInfo.UninstallRegistryPath, true);
+
+                        await migrator.Execute();
+
+                        Assert.NotNull(key.OpenSubKey(IntegrationTestHelper.SquirrelAppName));
+                    }
+                }
+            }
+        }
+
         [Fact]
         public async Task FirstStepInstallsSquirrelApp()
         {

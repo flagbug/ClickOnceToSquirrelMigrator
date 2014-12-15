@@ -54,6 +54,8 @@ namespace ClickOnceToSquirrelMigrator
             try
             {
                 await this.updateManager.FullInstall(true);
+
+                await this.updateManager.CreateUninstallerRegistryEntry();
             }
 
             catch (Exception ex)
