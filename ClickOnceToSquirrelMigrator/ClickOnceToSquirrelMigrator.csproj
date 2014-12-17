@@ -79,6 +79,7 @@
     <Compile Include="ClickOnceRegistry.cs" />
     <Compile Include="ClickOnceToSquirrelMigrator.cs" />
     <Compile Include="IUninstallStep.cs" />
+    <Compile Include="MigrationException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemoveFiles.cs" />
     <Compile Include="RemoveRegistryKeys.cs" />

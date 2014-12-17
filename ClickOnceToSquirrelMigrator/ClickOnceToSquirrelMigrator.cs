@@ -40,18 +40,12 @@ namespace ClickOnceToSquirrelMigrator
         /// 
         /// Call this method in a new version of your ClickOnce app.
         /// </summary>
+        /// <exception cref="MigrationException">
+        /// The exception that is thrown if the Squirrel-based install fails.
+        /// </exception>
         public async Task Execute()
         {
-            try
-            {
-                await this.InstallSquirrelDeployment();
-            }
-
-            catch (Exception ex)
-            {
-                this.Log().FatalException("Failed to do a full Squirrel install. Yikes!", ex);
-                return;
-            }
+            await this.InstallSquirrelDeployment();
 
             await this.RemoveClickOnceShortcuts();
         }
@@ -60,7 +54,17 @@ namespace ClickOnceToSquirrelMigrator
         {
             this.Log().Info("Starting the installation of the Squirrel version");
 
-            await this.updateManager.FullInstall(true);
+            try
+            {
+                await this.updateManager.FullInstall(true);
+            }
+
+            catch (Exception ex)
+            {
+                this.Log().FatalException("Failed to do a full Squirrel install. Yikes!", ex);
+
+                throw new MigrationException("Squirrel-based install failed.", ex);
+            }
 
             await this.updateManager.CreateUninstallerRegistryEntry();
 
