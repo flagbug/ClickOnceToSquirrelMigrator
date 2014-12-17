@@ -42,7 +42,16 @@ namespace ClickOnceToSquirrelMigrator
         /// </summary>
         public async Task Execute()
         {
-            await this.InstallSquirrelDeployment();
+            try
+            {
+                await this.InstallSquirrelDeployment();
+            }
+
+            catch (Exception ex)
+            {
+                this.Log().FatalException("Failed to do a full Squirrel install. Yikes!", ex);
+                return;
+            }
 
             await this.RemoveClickOnceShortcuts();
         }
@@ -51,18 +60,9 @@ namespace ClickOnceToSquirrelMigrator
         {
             this.Log().Info("Starting the installation of the Squirrel version");
 
-            try
-            {
-                await this.updateManager.FullInstall(true);
+            await this.updateManager.FullInstall(true);
 
-                await this.updateManager.CreateUninstallerRegistryEntry();
-            }
-
-            catch (Exception ex)
-            {
-                this.Log().FatalException("Failed to do a full Squirrel install. Yikes!", ex);
-                return;
-            }
+            await this.updateManager.CreateUninstallerRegistryEntry();
 
             this.Log().Info("Finished the installation of the Squirrel version");
         }
