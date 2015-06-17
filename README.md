@@ -11,7 +11,7 @@ The migration is super-simple, requiring only one method call in the ClickOnce v
 Create a new ClickOnce version of your application that you ship with the following code:
 
 ```cs
-using (var updateManager = new UpdateManager("http://update.myapp.com", "MyApp", FrameworkVersion.Net45))
+using (var updateManager = new UpdateManager("http://update.myapp.com"))
 {
     var migrator = new InClickOnceAppMigrator(updateManager, "ClickOnceAppName");
     await migrator.Execute();

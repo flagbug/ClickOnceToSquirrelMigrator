@@ -12,7 +12,7 @@
         <description>A migration helper from ClickOnce to Squirrel.Windows.</description>
         <tags>ClickOnce Squirrel Squirrel.Windows Migration</tags>
         <dependencies>
-            <dependency id="squirrel.windows" version="0.7.2" />
+            <dependency id="squirrel.windows" version="0.99.1.1" />
         </dependencies>
     </metadata>
     <files>

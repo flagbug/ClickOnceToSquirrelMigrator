@@ -104,7 +104,7 @@ namespace ClickOnceToSquirrelMigrator.Tests
 
         public static UpdateManager GetSquirrelUpdateManager(string rootDir)
         {
-            return new UpdateManager(IntegrationTestHelper.SquirrelTestAppPath, SquirrelAppName, FrameworkVersion.Net45, rootDir);
+            return new UpdateManager(IntegrationTestHelper.SquirrelTestAppPath, SquirrelAppName, rootDir);
         }
 
         public static IDisposable WithClickOnceApp()
